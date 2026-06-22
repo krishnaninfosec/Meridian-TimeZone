@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meridian Grid — Compact Timezone View</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f5f0;
+    --bg-card: #ffffff;
+    --bg-soft: #efebe0;
+    --bg-input: #ffffff;
+    --border: #e4dfd1;
+    --border-strong: #c9c2b0;
+    --border-subtle: #efece3;
+
+    --text: #1a1d29;
+    --text-dim: #5a6070;
+    --text-faint: #8a909e;
+
+    --accent: #1e3a5f;
+    --accent-soft: rgba(30, 58, 95, 0.06);
+    --accent-border: rgba(30, 58, 95, 0.25);
+    --accent-hover: #264872;
+
+    --bronze: #a05a2c;
+
+    /* Availability ring colors */
+    --biz: #15803d;
+    --biz-bg: rgba(21, 128, 61, 0.05);
+    --edge: #b45309;
+    --edge-bg: rgba(180, 83, 9, 0.05);
+    --off: #94a3b8;
+    --off-bg: rgba(148, 163, 184, 0.05);
+
+    --danger: #b91c1c;
+    --focus: #1d4ed8;
+
+    --shadow-sm: 0 1px 2px rgba(26, 29, 41, 0.04);
+    --shadow: 0 1px 3px rgba(26, 29, 41, 0.06), 0 1px 2px rgba(26, 29, 41, 0.04);
+    --shadow-lg: 0 10px 30px rgba(26, 29, 41, 0.08), 0 2px 6px rgba(26, 29, 41, 0.04);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body { padding: 24px 22px 36px; }
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  /* ─── Header ───────────────────────────────────────────────── */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .brand h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: 30px;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .brand h1 .emph {
+    color: var(--accent);
+    font-style: italic;
+    font-weight: 500;
+  }
+  .brand h1 .tag {
+    font-size: 14px;
+    color: var(--text-faint);
+    font-style: italic;
+    font-weight: 300;
+    margin-left: 8px;
+    letter-spacing: 0;
+  }
+
+  .home-time {
+    text-align: right;
+    padding: 8px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow-sm);
+  }
+  .home-time .label {
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 2px;
+    font-weight: 600;
+  }
+  .home-time .clock {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    color: var(--accent);
+    letter-spacing: 0.03em;
+  }
+  .home-time .zone {
+    font-size: 10px;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ─── Toolbar ──────────────────────────────────────────────── */
+  .toolbar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+
+  .btn {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: var(--shadow-sm);
+  }
+  .btn:hover { border-color: var(--accent-border); color: var(--accent); }
+  .btn-primary {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+  }
+  .btn-primary:hover { background: var(--accent-hover); color: #ffffff; border-color: var(--accent-hover); }
+
+  .toggle-group {
+    display: inline-flex;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px;
+    box-shadow: var(--shadow-sm);
+  }
+  .toggle-group button {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    font-size: 12px;
+    padding: 5px 11px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    transition: all 0.12s ease;
+  }
+  .toggle-group button:hover { color: var(--text); }
+  .toggle-group button.active { background: var(--accent); color: #ffffff; }
+
+  .spacer { flex: 1; }
+
+  /* ─── Slider bar (compact, inline) ─────────────────────────── */
+  .slider-bar {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 18px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: var(--shadow-sm);
+  }
+  .slider-bar .label {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .slider-bar .time-display {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    color: var(--accent);
+    font-weight: 500;
+    min-width: 100px;
+    text-align: right;
+  }
+  .slider-bar .time-display .status {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    color: var(--text-faint);
+    font-style: italic;
+    font-weight: 400;
+    margin-left: 4px;
+  }
+  .slider-bar .slider-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+  }
+
+  input[type="range"] {
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    height: 22px;
+    cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-runnable-track {
+    height: 5px; background: var(--bg-soft); border-radius: 3px;
+    border: 1px solid var(--border);
+  }
+  input[type="range"]::-moz-range-track {
+    height: 5px; background: var(--bg-soft); border-radius: 3px;
+    border: 1px solid var(--border);
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 18px; height: 18px; background: var(--accent);
+    border-radius: 50%; margin-top: -7px;
+    box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.12), 0 1px 3px rgba(0,0,0,0.15);
+    border: 2px solid #fff; transition: transform 0.1s;
+  }
+  input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+  input[type="range"]::-moz-range-thumb {
+    width: 18px; height: 18px; background: var(--accent);
+    border-radius: 50%; border: 2px solid #fff;
+    box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.12);
+  }
+
+  /* ─── Grid of circular tiles ───────────────────────────────── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 16px;
+    justify-items: center;
+  }
+
+  .tile {
+    width: 100%;
+    max-width: 160px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 4px solid var(--off);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 18px 12px;
+    position: relative;
+    box-shadow: var(--shadow);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: default;
+  }
+  .tile.biz  { border-color: var(--biz);  background: linear-gradient(180deg, #fff 60%, var(--biz-bg) 100%); }
+  .tile.edge { border-color: var(--edge); background: linear-gradient(180deg, #fff 60%, var(--edge-bg) 100%); }
+  .tile.off  { border-color: var(--off);  background: linear-gradient(180deg, #fff 60%, var(--off-bg) 100%); }
+
+  .tile:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+  .tile.home {
+    box-shadow: var(--shadow), 0 0 0 3px var(--accent-soft);
+  }
+  .tile.home::after {
+    content: "HOME";
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent);
+    color: #fff;
+    font-size: 8px;
+    letter-spacing: 0.18em;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 10px;
+    white-space: nowrap;
+  }
+
+  /* Inside the tile */
+  .tile .city {
+    font-family: 'Fraunces', serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    text-align: center;
+    line-height: 1.1;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 0 4px;
+  }
+  .tile .time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 19px;
+    font-weight: 500;
+    color: var(--text);
+    margin-top: 6px;
+    letter-spacing: 0.01em;
+  }
+  .tile .time .ampm {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--text-dim);
+    margin-left: 2px;
+  }
+  .tile .meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-faint);
+    margin-top: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .tile .meta .delta {
+    color: var(--bronze);
+    font-weight: 500;
+  }
+  .tile .meta .day {
+    color: var(--text-dim);
+  }
+  .tile.next-day .day { color: var(--bronze); font-weight: 500; }
+
+  /* Remove button — only on hover */
+  .tile .remove {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: rgba(185, 28, 28, 0.08);
+    border: 1px solid rgba(185, 28, 28, 0.25);
+    color: var(--danger);
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    opacity: 0;
+    transition: opacity 0.15s, transform 0.15s;
+  }
+  .tile:hover .remove { opacity: 1; }
+  .tile .remove:hover { transform: scale(1.1); background: rgba(185, 28, 28, 0.18); }
+
+  /* Set-home button — only on hover */
+  .tile .set-home {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-border);
+    color: var(--accent);
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 12px;
+    line-height: 1;
+    padding: 0;
+    opacity: 0;
+    transition: opacity 0.15s, transform 0.15s;
+  }
+  .tile:hover .set-home { opacity: 1; }
+  .tile.home .set-home { display: none; }
+  .tile .set-home:hover { transform: scale(1.1); background: rgba(30, 58, 95, 0.14); }
+
+  /* Edit (change city) button — only on hover */
+  .tile .edit-city {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    background: var(--bg-soft);
+    border: 1px solid var(--border-strong);
+    color: var(--text-dim);
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 11px;
+    line-height: 1;
+    padding: 0;
+    opacity: 0;
+    transition: opacity 0.15s, transform 0.15s, background 0.15s, color 0.15s;
+  }
+  .tile:hover .edit-city { opacity: 1; }
+  .tile .edit-city:hover {
+    transform: scale(1.1);
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  /* Drag handle — visual hint only; the whole tile is draggable */
+  .tile .drag-handle {
+    position: absolute;
+    bottom: 6px;
+    left: 6px;
+    background: var(--bg-soft);
+    border: 1px solid var(--border-strong);
+    color: var(--text-dim);
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    line-height: 1;
+    padding: 0;
+    opacity: 0;
+    transition: opacity 0.15s, background 0.15s, color 0.15s;
+    user-select: none;
+    -webkit-user-select: none;
+    pointer-events: none; /* tile itself handles drag */
+  }
+  .tile:hover .drag-handle { opacity: 1; }
+
+  /* Tile cursor: grab when reorderable */
+  .tile {
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none; /* allow pointer drag without scroll interception */
+  }
+  .tile:active { cursor: grabbing; }
+
+  /* Dragging visual states */
+  .tile.dragging {
+    opacity: 0.25;
+    transform: scale(0.95);
+    transition: opacity 0.15s, transform 0.15s;
+  }
+  .tile.drag-over {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 3px var(--accent), var(--shadow-lg);
+  }
+  body.is-dragging { cursor: grabbing !important; }
+  body.is-dragging .tile:not(.dragging) { transition: transform 0.2s ease; }
+
+  /* Ghost element that follows the cursor while dragging */
+  .drag-ghost {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.92;
+    transform: rotate(2deg) scale(0.95);
+    box-shadow: 0 12px 40px rgba(26, 29, 41, 0.25), 0 4px 12px rgba(26, 29, 41, 0.15);
+    transition: none;
+    border-radius: 50%;
+  }
+
+  /* Add tile */
+  .tile-add {
+    width: 100%;
+    max-width: 160px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: transparent;
+    border: 2px dashed var(--border-strong);
+    color: var(--text-faint);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+  }
+  .tile-add:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-soft);
+    transform: translateY(-2px);
+  }
+  .tile-add .plus {
+    font-size: 32px;
+    font-weight: 300;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .tile-add .label {
+    font-size: 11px;
+    letter-spacing: 0.05em;
+  }
+
+  /* ─── Legend ───────────────────────────────────────────────── */
+  .legend {
+    display: flex;
+    gap: 20px;
+    padding: 10px 18px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-top: 20px;
+    font-size: 11px;
+    color: var(--text-dim);
+    flex-wrap: wrap;
+    box-shadow: var(--shadow-sm);
+    justify-content: center;
+  }
+  .legend-item { display: inline-flex; align-items: center; gap: 8px; }
+  .legend-ring {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #fff;
+  }
+  .legend-ring.biz  { border: 3px solid var(--biz); }
+  .legend-ring.edge { border: 3px solid var(--edge); }
+  .legend-ring.off  { border: 3px solid var(--off); }
+
+  .footer-hint {
+    text-align: center;
+    margin-top: 18px;
+    font-size: 11px;
+    color: var(--text-faint);
+  }
+
+  /* ─── Modal (same as before) ───────────────────────────────── */
+  .modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(26, 29, 41, 0.35);
+    backdrop-filter: blur(6px);
+    display: none;
+    align-items: flex-start; justify-content: center;
+    padding: 10vh 20px 20px;
+    z-index: 100;
+    animation: fadeIn 0.15s ease;
+  }
+  .modal-backdrop.show { display: flex; }
+  @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
+
+  .modal {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    width: 100%; max-width: 520px; max-height: 70vh;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+  }
+  .modal-header { padding: 20px 22px 14px; border-bottom: 1px solid var(--border); }
+  .modal-header h2 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 20px; }
+  .modal-header p { font-size: 12px; color: var(--text-faint); margin-top: 2px; }
+  .modal-search { padding: 14px 22px; border-bottom: 1px solid var(--border); }
+  .modal-search input {
+    width: 100%; background: var(--bg-input);
+    border: 1px solid var(--border); color: var(--text);
+    padding: 10px 14px; border-radius: 6px;
+    font-family: 'Inter', sans-serif; font-size: 14px;
+    outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .modal-search input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+  .modal-list { overflow-y: auto; flex: 1; }
+  .modal-list::-webkit-scrollbar { width: 8px; }
+  .modal-list::-webkit-scrollbar-track { background: var(--bg-card); }
+  .modal-list::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
+
+  .tz-item {
+    padding: 12px 22px;
+    border-bottom: 1px solid var(--border-subtle);
+    cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+    transition: background 0.1s;
+  }
+  .tz-item:hover { background: var(--bg-soft); }
+  .tz-item:last-child { border-bottom: none; }
+  .tz-item .city-name { font-size: 14px; color: var(--text); font-weight: 500; }
+  .tz-item .zone-id { font-size: 11px; color: var(--text-faint); font-family: 'JetBrains Mono', monospace; margin-top: 2px; }
+  .tz-item .right { text-align: right; }
+  .tz-item .current-time { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--accent); font-weight: 500; }
+  .tz-item .offset { font-size: 10px; color: var(--text-faint); font-family: 'JetBrains Mono', monospace; }
+
+  /* ─── Responsive ───────────────────────────────────────────── */
+  @media (max-width: 560px) {
+    body { padding: 16px 12px 30px; }
+    .brand h1 { font-size: 24px; }
+    .brand h1 .tag { display: block; margin-left: 0; font-size: 11px; margin-top: 2px; }
+    .grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+    .tile { max-width: 140px; padding: 14px 8px; }
+    .tile .city { font-size: 12px; }
+    .tile .time { font-size: 16px; }
+    .slider-bar .time-display { font-size: 13px; min-width: 80px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <div class="brand">
+    <h1>Meri<span class="emph">dian</span><span class="tag">· grid view</span></h1>
+  </div>
+  <div class="home-time">
+    <div class="label">Your Local Time</div>
+    <div class="clock" id="homeClock">—</div>
+    <div class="zone" id="homeZoneLabel">—</div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <button class="btn btn-primary" id="addBtn">+ Add City</button>
+  <div class="toggle-group" id="formatToggle">
+    <button data-fmt="24">24h</button>
+    <button data-fmt="12" class="active">12h</button>
+  </div>
+  <div class="toggle-group" id="businessToggle">
+    <button data-biz="standard" class="active">9–6</button>
+    <button data-biz="extended">8–8</button>
+  </div>
+  <div class="spacer"></div>
+  <button class="btn" id="resetBtn" title="Reset slider to current time">↻ Now</button>
+</div>
+
+<div class="slider-bar">
+  <span class="label">Preview time</span>
+  <div class="slider-wrap">
+    <input type="range" id="timeSlider" min="0" max="95" value="36" step="1">
+  </div>
+  <span class="time-display">
+    <span id="sliderDisplay">—</span><span class="status" id="sliderStatus"></span>
+  </span>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<div class="legend">
+  <div class="legend-item"><span class="legend-ring biz"></span> Business hours</div>
+  <div class="legend-item"><span class="legend-ring edge"></span> Edge hours</div>
+  <div class="legend-item"><span class="legend-ring off"></span> Off hours</div>
+</div>
+
+<div class="footer-hint">
+  Drag any tile to reorder · Hover for ⌂ home · ✎ change city · × remove
+</div>
+
+</div>
+
+<!-- Add timezone modal -->
+<div class="modal-backdrop" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modalTitle">Add a timezone</h2>
+      <p id="modalSubtitle">Search for a city, country, or IANA zone identifier.</p>
+    </div>
+    <div class="modal-search">
+      <input type="text" id="searchInput" placeholder="e.g. Bangalore, Singapore, Europe/Paris…" autocomplete="off">
+    </div>
+    <div class="modal-list" id="modalList"></div>
+  </div>
+</div>
+
+<script>
+  // ─── Timezone list (same as main app) ─────────────────────────────────────
+  const TIMEZONES = [
+    { city: 'San Francisco', country: 'USA', zone: 'America/Los_Angeles' },
+    { city: 'Los Angeles',   country: 'USA', zone: 'America/Los_Angeles' },
+    { city: 'Seattle',       country: 'USA', zone: 'America/Los_Angeles' },
+    { city: 'Phoenix',       country: 'USA', zone: 'America/Phoenix' },
+    { city: 'Denver',        country: 'USA', zone: 'America/Denver' },
+    { city: 'Chicago',       country: 'USA', zone: 'America/Chicago' },
+    { city: 'Dallas',        country: 'USA', zone: 'America/Chicago' },
+    { city: 'Houston',       country: 'USA', zone: 'America/Chicago' },
+    { city: 'New York',      country: 'USA', zone: 'America/New_York' },
+    { city: 'Washington DC', country: 'USA', zone: 'America/New_York' },
+    { city: 'Atlanta',       country: 'USA', zone: 'America/New_York' },
+    { city: 'Boston',        country: 'USA', zone: 'America/New_York' },
+    { city: 'Miami',         country: 'USA', zone: 'America/New_York' },
+    { city: 'Toronto',       country: 'Canada', zone: 'America/Toronto' },
+    { city: 'Vancouver',     country: 'Canada', zone: 'America/Vancouver' },
+    { city: 'Mexico City',   country: 'Mexico', zone: 'America/Mexico_City' },
+    { city: 'São Paulo',     country: 'Brazil', zone: 'America/Sao_Paulo' },
+    { city: 'Buenos Aires',  country: 'Argentina', zone: 'America/Argentina/Buenos_Aires' },
+    { city: 'Santiago',      country: 'Chile', zone: 'America/Santiago' },
+    { city: 'Bogotá',        country: 'Colombia', zone: 'America/Bogota' },
+    { city: 'London',        country: 'UK', zone: 'Europe/London' },
+    { city: 'Dublin',        country: 'Ireland', zone: 'Europe/Dublin' },
+    { city: 'Lisbon',        country: 'Portugal', zone: 'Europe/Lisbon' },
+    { city: 'Madrid',        country: 'Spain', zone: 'Europe/Madrid' },
+    { city: 'Paris',         country: 'France', zone: 'Europe/Paris' },
+    { city: 'Amsterdam',     country: 'Netherlands', zone: 'Europe/Amsterdam' },
+    { city: 'Brussels',      country: 'Belgium', zone: 'Europe/Brussels' },
+    { city: 'Berlin',        country: 'Germany', zone: 'Europe/Berlin' },
+    { city: 'Frankfurt',     country: 'Germany', zone: 'Europe/Berlin' },
+    { city: 'Zurich',        country: 'Switzerland', zone: 'Europe/Zurich' },
+    { city: 'Milan',         country: 'Italy', zone: 'Europe/Rome' },
+    { city: 'Rome',          country: 'Italy', zone: 'Europe/Rome' },
+    { city: 'Stockholm',     country: 'Sweden', zone: 'Europe/Stockholm' },
+    { city: 'Oslo',          country: 'Norway', zone: 'Europe/Oslo' },
+    { city: 'Copenhagen',    country: 'Denmark', zone: 'Europe/Copenhagen' },
+    { city: 'Helsinki',      country: 'Finland', zone: 'Europe/Helsinki' },
+    { city: 'Warsaw',        country: 'Poland', zone: 'Europe/Warsaw' },
+    { city: 'Prague',        country: 'Czech Republic', zone: 'Europe/Prague' },
+    { city: 'Vienna',        country: 'Austria', zone: 'Europe/Vienna' },
+    { city: 'Athens',        country: 'Greece', zone: 'Europe/Athens' },
+    { city: 'Bucharest',     country: 'Romania', zone: 'Europe/Bucharest' },
+    { city: 'Istanbul',      country: 'Turkey', zone: 'Europe/Istanbul' },
+    { city: 'Moscow',        country: 'Russia', zone: 'Europe/Moscow' },
+    { city: 'Cairo',         country: 'Egypt', zone: 'Africa/Cairo' },
+    { city: 'Lagos',         country: 'Nigeria', zone: 'Africa/Lagos' },
+    { city: 'Johannesburg',  country: 'South Africa', zone: 'Africa/Johannesburg' },
+    { city: 'Nairobi',       country: 'Kenya', zone: 'Africa/Nairobi' },
+    { city: 'Dubai',         country: 'UAE', zone: 'Asia/Dubai' },
+    { city: 'Abu Dhabi',     country: 'UAE', zone: 'Asia/Dubai' },
+    { city: 'Riyadh',        country: 'Saudi Arabia', zone: 'Asia/Riyadh' },
+    { city: 'Doha',          country: 'Qatar', zone: 'Asia/Qatar' },
+    { city: 'Tel Aviv',      country: 'Israel', zone: 'Asia/Jerusalem' },
+    { city: 'Karachi',       country: 'Pakistan', zone: 'Asia/Karachi' },
+    { city: 'Mumbai',        country: 'India', zone: 'Asia/Kolkata' },
+    { city: 'Bangalore',     country: 'India', zone: 'Asia/Kolkata' },
+    { city: 'Hyderabad',     country: 'India', zone: 'Asia/Kolkata' },
+    { city: 'Chennai',       country: 'India', zone: 'Asia/Kolkata' },
+    { city: 'Pune',          country: 'India', zone: 'Asia/Kolkata' },
+    { city: 'Delhi',         country: 'India', zone: 'Asia/Kolkata' },
+    { city: 'Kolkata',       country: 'India', zone: 'Asia/Kolkata' },
+    { city: 'Colombo',       country: 'Sri Lanka', zone: 'Asia/Colombo' },
+    { city: 'Dhaka',         country: 'Bangladesh', zone: 'Asia/Dhaka' },
+    { city: 'Bangkok',       country: 'Thailand', zone: 'Asia/Bangkok' },
+    { city: 'Jakarta',       country: 'Indonesia', zone: 'Asia/Jakarta' },
+    { city: 'Ho Chi Minh',   country: 'Vietnam', zone: 'Asia/Ho_Chi_Minh' },
+    { city: 'Hanoi',         country: 'Vietnam', zone: 'Asia/Ho_Chi_Minh' },
+    { city: 'Kuala Lumpur',  country: 'Malaysia', zone: 'Asia/Kuala_Lumpur' },
+    { city: 'Singapore',     country: 'Singapore', zone: 'Asia/Singapore' },
+    { city: 'Manila',        country: 'Philippines', zone: 'Asia/Manila' },
+    { city: 'Hong Kong',     country: 'Hong Kong', zone: 'Asia/Hong_Kong' },
+    { city: 'Beijing',       country: 'China', zone: 'Asia/Shanghai' },
+    { city: 'Shanghai',      country: 'China', zone: 'Asia/Shanghai' },
+    { city: 'Shenzhen',      country: 'China', zone: 'Asia/Shanghai' },
+    { city: 'Taipei',        country: 'Taiwan', zone: 'Asia/Taipei' },
+    { city: 'Seoul',         country: 'South Korea', zone: 'Asia/Seoul' },
+    { city: 'Tokyo',         country: 'Japan', zone: 'Asia/Tokyo' },
+    { city: 'Osaka',         country: 'Japan', zone: 'Asia/Tokyo' },
+    { city: 'Sydney',        country: 'Australia', zone: 'Australia/Sydney' },
+    { city: 'Melbourne',     country: 'Australia', zone: 'Australia/Melbourne' },
+    { city: 'Brisbane',      country: 'Australia', zone: 'Australia/Brisbane' },
+    { city: 'Perth',         country: 'Australia', zone: 'Australia/Perth' },
+    { city: 'Auckland',      country: 'New Zealand', zone: 'Pacific/Auckland' },
+    { city: 'Honolulu',      country: 'USA', zone: 'Pacific/Honolulu' },
+    { city: 'UTC',           country: 'Coordinated', zone: 'UTC' },
+  ];
+
+  // ─── State ────────────────────────────────────────────────────────────────
+  const state = {
+    zones: [],
+    homeId: null,
+    format24: false,
+    bizStart: 9,
+    bizEnd: 18,
+  };
+
+  // Separate storage key from the list-view app, so they don't collide
+  const STORAGE_KEY = 'meridian_grid_v1';
+
+  function saveState() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        zones: state.zones, homeId: state.homeId, format24: state.format24,
+        bizStart: state.bizStart, bizEnd: state.bizEnd,
+      }));
+    } catch (e) { console.warn(e); }
+  }
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) { Object.assign(state, JSON.parse(raw)); return true; }
+    } catch (e) {}
+    return false;
+  }
+
+  function seedDefaults() {
+    const detected = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const match = TIMEZONES.find(t => t.zone === detected) || { city: 'Local', country: '', zone: detected };
+    const home = { id: id(), city: match.city, country: match.country, zone: match.zone };
+    state.zones = [
+      home,
+      { id: id(), city: 'New York',  country: 'USA', zone: 'America/New_York' },
+      { id: id(), city: 'London',    country: 'UK',  zone: 'Europe/London' },
+      { id: id(), city: 'Dubai',     country: 'UAE', zone: 'Asia/Dubai' },
+      { id: id(), city: 'Singapore', country: 'Singapore', zone: 'Asia/Singapore' },
+      { id: id(), city: 'Tokyo',     country: 'Japan', zone: 'Asia/Tokyo' },
+    ];
+    state.homeId = home.id;
+  }
+
+  function id() { return 'z_' + Math.random().toString(36).slice(2, 9); }
+
+  // ─── Time helpers ─────────────────────────────────────────────────────────
+  function getTimeInZone(date, zone) {
+    const fmt = new Intl.DateTimeFormat('en-US', {
+      timeZone: zone, hour12: false,
+      year: 'numeric', month: 'short', day: '2-digit', weekday: 'short',
+      hour: '2-digit', minute: '2-digit', second: '2-digit'
+    });
+    const parts = fmt.formatToParts(date);
+    const get = t => parts.find(p => p.type === t)?.value;
+    let h = parseInt(get('hour'), 10); if (h === 24) h = 0;
+    return {
+      h, m: parseInt(get('minute'), 10), s: parseInt(get('second'), 10),
+      weekday: get('weekday'), month: get('month'), day: get('day'), year: get('year'),
+    };
+  }
+
+  function getOffsetString(zone, date = new Date()) {
+    const fmt = new Intl.DateTimeFormat('en-US', { timeZone: zone, timeZoneName: 'shortOffset' });
+    return fmt.formatToParts(date).find(p => p.type === 'timeZoneName')?.value || '';
+  }
+
+  function getOffsetMinutes(zone, date = new Date()) {
+    const dtf = new Intl.DateTimeFormat('en-US', {
+      timeZone: zone, hour12: false,
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit'
+    });
+    const parts = Object.fromEntries(dtf.formatToParts(date).map(p => [p.type, p.value]));
+    let h = parseInt(parts.hour, 10); if (h === 24) h = 0;
+    const asUTC = Date.UTC(
+      parseInt(parts.year, 10), parseInt(parts.month, 10) - 1, parseInt(parts.day, 10),
+      h, parseInt(parts.minute, 10), parseInt(parts.second, 10)
+    );
+    return Math.round((asUTC - date.getTime()) / 60000);
+  }
+
+  function formatTimeParts(h, m) {
+    const mm = String(m).padStart(2, '0');
+    if (state.format24) return { main: `${String(h).padStart(2, '0')}:${mm}`, ampm: '' };
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    let hh = h % 12; if (hh === 0) hh = 12;
+    return { main: `${hh}:${mm}`, ampm };
+  }
+
+  function formatHMInline(h, m) {
+    const p = formatTimeParts(h, m);
+    return p.ampm ? `${p.main} ${p.ampm}` : p.main;
+  }
+
+  function classifyHour(h) {
+    if (h >= state.bizStart && h < state.bizEnd) return 'biz';
+    if (h === state.bizStart - 1 || h === state.bizEnd) return 'edge';
+    return 'off';
+  }
+
+  function deltaFromHome(zone, date = new Date()) {
+    if (!state.homeId) return '';
+    const home = state.zones.find(z => z.id === state.homeId);
+    if (!home) return '';
+    if (home.zone === zone) return '';
+    const deltaMin = getOffsetMinutes(zone, date) - getOffsetMinutes(home.zone, date);
+    if (deltaMin === 0) return 'same';
+    const sign = deltaMin >= 0 ? '+' : '−';
+    const abs = Math.abs(deltaMin);
+    const h = Math.floor(abs / 60);
+    const m = abs % 60;
+    if (m === 0) return `${sign}${h}h`;
+    if (h === 0) return `${sign}${m}m`;
+    return `${sign}${h}h${String(m).padStart(2,'0')}`;
+  }
+
+  function dayIndicator(homeTime, zoneTime) {
+    // Returns short label and whether it's a different day
+    if (!homeTime) return { label: '', different: false };
+    // Compare date strings
+    const hDate = `${homeTime.year}-${homeTime.month}-${homeTime.day}`;
+    const zDate = `${zoneTime.year}-${zoneTime.month}-${zoneTime.day}`;
+    if (hDate === zDate) return { label: zoneTime.weekday, different: false };
+    // Determine ahead/behind by comparing
+    const parse = (t) => new Date(`${t.month} ${t.day}, ${t.year}`).getTime();
+    const diff = parse(zoneTime) - parse(homeTime);
+    const suffix = diff > 0 ? ' +1' : ' −1';
+    return { label: zoneTime.weekday + suffix, different: true };
+  }
+
+  // ─── DOM refs ─────────────────────────────────────────────────────────────
+  const el = {
+    homeClock:   document.getElementById('homeClock'),
+    homeZone:    document.getElementById('homeZoneLabel'),
+    grid:        document.getElementById('grid'),
+    slider:      document.getElementById('timeSlider'),
+    sliderDisp:  document.getElementById('sliderDisplay'),
+    sliderStatus:document.getElementById('sliderStatus'),
+    addBtn:      document.getElementById('addBtn'),
+    resetBtn:    document.getElementById('resetBtn'),
+    modal:       document.getElementById('modal'),
+    searchInput: document.getElementById('searchInput'),
+    modalList:   document.getElementById('modalList'),
+    fmtToggle:   document.getElementById('formatToggle'),
+    bizToggle:   document.getElementById('businessToggle'),
+  };
+
+  // ─── Slider ───────────────────────────────────────────────────────────────
+  function getSliderInstant() {
+    const home = state.zones.find(z => z.id === state.homeId) || state.zones[0];
+    if (!home) return new Date();
+    const now = new Date();
+    const homeNow = getTimeInZone(now, home.zone);
+    const offsetMin = getOffsetMinutes(home.zone, now);
+    const homeMidnightUTC = Date.UTC(
+      parseInt(homeNow.year, 10),
+      new Date(`${homeNow.month} 1, 2000`).getMonth(),
+      parseInt(homeNow.day, 10), 0, 0, 0
+    ) - offsetMin * 60000;
+    return new Date(homeMidnightUTC + parseInt(el.slider.value, 10) * 15 * 60000);
+  }
+
+  function isSliderAtNow() {
+    const home = state.zones.find(z => z.id === state.homeId) || state.zones[0];
+    if (!home) return true;
+    const t = getTimeInZone(new Date(), home.zone);
+    return parseInt(el.slider.value, 10) === Math.floor((t.h * 60 + t.m) / 15);
+  }
+
+  function syncSliderToNow() {
+    const home = state.zones.find(z => z.id === state.homeId) || state.zones[0];
+    if (!home) return;
+    const t = getTimeInZone(new Date(), home.zone);
+    el.slider.value = Math.floor((t.h * 60 + t.m) / 15);
+  }
+
+  // ─── Rendering ────────────────────────────────────────────────────────────
+  function render() {
+    const now = new Date();
+    const sliderInstant = getSliderInstant();
+    const atNow = isSliderAtNow();
+    // Time to display on each tile = current time when slider is "now", otherwise preview time
+    const displayInstant = atNow ? now : sliderInstant;
+
+    const home = state.zones.find(z => z.id === state.homeId) || state.zones[0];
+    if (home) {
+      const t = getTimeInZone(now, home.zone);
+      el.homeClock.textContent = formatHMInline(t.h, t.m);
+      el.homeZone.textContent = `${home.city} · ${getOffsetString(home.zone, now)}`;
+
+      const ts = getTimeInZone(sliderInstant, home.zone);
+      el.sliderDisp.textContent = formatHMInline(ts.h, ts.m);
+      el.sliderStatus.textContent = atNow ? '· live' : '· preview';
+    } else {
+      el.homeClock.textContent = '—';
+      el.homeZone.textContent = '';
+      el.sliderDisp.textContent = '—';
+      el.sliderStatus.textContent = '';
+    }
+
+    // Home time at the display instant (for day comparisons)
+    const homeDisplayTime = home ? getTimeInZone(displayInstant, home.zone) : null;
+
+    const tilesHTML = state.zones.map(z => renderTile(z, displayInstant, homeDisplayTime)).join('');
+    const addTileHTML = `
+      <button class="tile-add" id="addTile" title="Add a timezone">
+        <span class="plus">+</span>
+        <span class="label">Add city</span>
+      </button>
+    `;
+    el.grid.innerHTML = tilesHTML + addTileHTML;
+
+    // Wire up actions
+    el.grid.querySelectorAll('[data-action]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const action = btn.dataset.action;
+        const zid = btn.dataset.id;
+        if (action === 'remove') removeZone(zid);
+        if (action === 'home')   setHome(zid);
+        if (action === 'edit')   openEditModal(zid);
+      });
+    });
+
+    // Whole tile is draggable for reordering
+    el.grid.querySelectorAll('.tile[data-tile-id]').forEach(tile => {
+      tile.addEventListener('pointerdown', startDrag);
+    });
+
+    document.getElementById('addTile')?.addEventListener('click', () => openModal());
+  }
+
+  function renderTile(z, instant, homeTime) {
+    const t = getTimeInZone(instant, z.zone);
+    const cls = classifyHour(t.h);
+    const isHome = z.id === state.homeId;
+    const parts = formatTimeParts(t.h, t.m);
+    const delta = isHome ? 'HOME' : deltaFromHome(z.zone, instant);
+    const day = dayIndicator(homeTime, t);
+
+    return `
+      <div class="tile ${cls} ${isHome ? 'home' : ''} ${day.different ? 'next-day' : ''}" data-tile-id="${z.id}" title="${z.zone}">
+        <div class="city">${z.city}</div>
+        <div class="time">${parts.main}${parts.ampm ? `<span class="ampm">${parts.ampm}</span>` : ''}</div>
+        <div class="meta">
+          <span class="delta">${delta}</span>
+          <span class="day">${day.label}</span>
+        </div>
+        ${!isHome ? `<button class="set-home" data-action="home" data-id="${z.id}" title="Set as home">⌂</button>` : ''}
+        <button class="remove" data-action="remove" data-id="${z.id}" title="Remove">×</button>
+        <button class="edit-city" data-action="edit" data-id="${z.id}" title="Change city">✎</button>
+        <button class="drag-handle" data-drag-id="${z.id}" title="Drag to reorder">⠿</button>
+      </div>
+    `;
+  }
+
+  // ─── Actions ──────────────────────────────────────────────────────────────
+  function removeZone(zid) {
+    state.zones = state.zones.filter(z => z.id !== zid);
+    if (state.homeId === zid) state.homeId = state.zones[0]?.id || null;
+    saveState(); render();
+  }
+  function setHome(zid) {
+    state.homeId = zid;
+    syncSliderToNow();
+    saveState(); render();
+  }
+  function addZone(tz) {
+    if (modalMode.kind === 'edit') {
+      // Replace the city/zone of the existing tile, keep its id and position
+      const target = state.zones.find(z => z.id === modalMode.zoneId);
+      if (target) {
+        target.city = tz.city;
+        target.country = tz.country;
+        target.zone = tz.zone;
+      }
+      saveState(); render(); closeModal();
+      return;
+    }
+    if (state.zones.some(z => z.city === tz.city && z.zone === tz.zone)) { closeModal(); return; }
+    state.zones.push({ id: id(), city: tz.city, country: tz.country, zone: tz.zone });
+    if (!state.homeId) state.homeId = state.zones[0].id;
+    saveState(); render(); closeModal();
+  }
+
+  // ─── Drag and drop reorder ────────────────────────────────────────────────
+  // Approach: whole tile is the drag source. On pointerdown, we wait for a
+  // small movement threshold before starting drag (so quick clicks don't
+  // trigger it). Once started, a "ghost" clone follows the cursor for clear
+  // visual feedback, and we use document-level pointermove/up listeners.
+
+  function startDrag(e) {
+    // Ignore clicks on action buttons (remove / set-home / edit)
+    if (e.target.closest('button')) return;
+    // Only respond to primary button (left mouse / first touch)
+    if (e.button !== undefined && e.button !== 0) return;
+
+    const tile = e.currentTarget;
+    const zid = tile.dataset.tileId;
+    if (!zid) return;
+
+    e.preventDefault();
+
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const tileRect = tile.getBoundingClientRect();
+    // Where on the tile the user grabbed (so the ghost stays under their cursor)
+    const grabOffsetX = startX - tileRect.left;
+    const grabOffsetY = startY - tileRect.top;
+
+    let started = false;
+    let ghost = null;
+    let lastOver = null;
+
+    function onMove(ev) {
+      const dx = ev.clientX - startX;
+      const dy = ev.clientY - startY;
+
+      // Wait for 5px movement before considering it a drag
+      if (!started) {
+        if (Math.hypot(dx, dy) < 5) return;
+        started = true;
+        // Build the ghost
+        ghost = tile.cloneNode(true);
+        ghost.classList.add('drag-ghost');
+        ghost.classList.remove('dragging');
+        ghost.style.width = tileRect.width + 'px';
+        ghost.style.height = tileRect.height + 'px';
+        document.body.appendChild(ghost);
+        tile.classList.add('dragging');
+        document.body.classList.add('is-dragging');
+      }
+
+      // Position ghost under cursor (matching original grab point)
+      ghost.style.left = (ev.clientX - grabOffsetX) + 'px';
+      ghost.style.top  = (ev.clientY - grabOffsetY) + 'px';
+
+      // Find what tile is under the cursor
+      // Ghost has pointer-events: none, so elementFromPoint sees through it
+      const el = document.elementFromPoint(ev.clientX, ev.clientY);
+      const overTile = el && el.closest && el.closest('.tile[data-tile-id]');
+
+      if (overTile !== lastOver) {
+        if (lastOver) lastOver.classList.remove('drag-over');
+        if (overTile && overTile !== tile) {
+          overTile.classList.add('drag-over');
+          lastOver = overTile;
+        } else {
+          lastOver = null;
+        }
+      }
+    }
+
+    function onUp() {
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+      document.removeEventListener('pointercancel', onUp);
+
+      if (ghost) ghost.remove();
+      tile.classList.remove('dragging');
+      document.body.classList.remove('is-dragging');
+      if (lastOver) lastOver.classList.remove('drag-over');
+
+      // Perform reorder if dropped on a valid target
+      if (started && lastOver && lastOver !== tile) {
+        const targetId = lastOver.dataset.tileId;
+        const fromIdx = state.zones.findIndex(z => z.id === zid);
+        const toIdx   = state.zones.findIndex(z => z.id === targetId);
+        if (fromIdx !== -1 && toIdx !== -1 && fromIdx !== toIdx) {
+          const [moved] = state.zones.splice(fromIdx, 1);
+          state.zones.splice(toIdx, 0, moved);
+          saveState();
+          render();
+        }
+      }
+    }
+
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp);
+    document.addEventListener('pointercancel', onUp);
+  }
+
+  // ─── Modal ────────────────────────────────────────────────────────────────
+  let modalMode = { kind: 'add', zoneId: null };
+
+  function openModal() {
+    modalMode = { kind: 'add', zoneId: null };
+    document.getElementById('modalTitle').textContent = 'Add a timezone';
+    document.getElementById('modalSubtitle').textContent = 'Search for a city, country, or IANA zone identifier.';
+    el.modal.classList.add('show');
+    el.searchInput.value = '';
+    renderModalList('');
+    setTimeout(() => el.searchInput.focus(), 50);
+  }
+
+  function openEditModal(zoneId) {
+    const target = state.zones.find(z => z.id === zoneId);
+    if (!target) return;
+    modalMode = { kind: 'edit', zoneId };
+    document.getElementById('modalTitle').textContent = `Change city — ${target.city}`;
+    document.getElementById('modalSubtitle').textContent = 'Pick a different city to replace this tile (position is kept).';
+    el.modal.classList.add('show');
+    el.searchInput.value = '';
+    renderModalList('');
+    setTimeout(() => el.searchInput.focus(), 50);
+  }
+
+  function closeModal() {
+    el.modal.classList.remove('show');
+    modalMode = { kind: 'add', zoneId: null };
+  }
+
+  function renderModalList(query) {
+    const q = query.trim().toLowerCase();
+    const now = new Date();
+    const list = TIMEZONES.filter(tz => {
+      if (!q) return true;
+      return (tz.city + ' ' + tz.country + ' ' + tz.zone).toLowerCase().includes(q);
+    }).slice(0, 80);
+
+    el.modalList.innerHTML = list.map(tz => {
+      const t = getTimeInZone(now, tz.zone);
+      const offset = getOffsetString(tz.zone, now);
+      return `
+        <div class="tz-item" data-city="${tz.city}" data-country="${tz.country}" data-zone="${tz.zone}">
+          <div>
+            <div class="city-name">${tz.city}, ${tz.country}</div>
+            <div class="zone-id">${tz.zone}</div>
+          </div>
+          <div class="right">
+            <div class="current-time">${formatHMInline(t.h, t.m)}</div>
+            <div class="offset">${offset}</div>
+          </div>
+        </div>`;
+    }).join('') || `<div style="padding:30px;text-align:center;color:var(--text-faint);font-size:13px;">No matches for "${query}"</div>`;
+
+    el.modalList.querySelectorAll('.tz-item').forEach(item => {
+      item.addEventListener('click', () => {
+        addZone({ city: item.dataset.city, country: item.dataset.country, zone: item.dataset.zone });
+      });
+    });
+  }
+
+  // ─── Events ───────────────────────────────────────────────────────────────
+  el.addBtn.addEventListener('click', openModal);
+  el.modal.addEventListener('click', (e) => { if (e.target === el.modal) closeModal(); });
+  el.searchInput.addEventListener('input', (e) => renderModalList(e.target.value));
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+  el.slider.addEventListener('input', render);
+  el.resetBtn.addEventListener('click', () => { syncSliderToNow(); render(); });
+
+  el.fmtToggle.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      el.fmtToggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.format24 = btn.dataset.fmt === '24';
+      saveState(); render();
+    });
+  });
+  el.bizToggle.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      el.bizToggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (btn.dataset.biz === 'extended') { state.bizStart = 8; state.bizEnd = 20; }
+      else                                { state.bizStart = 9; state.bizEnd = 18; }
+      saveState(); render();
+    });
+  });
+
+  // ─── Init ─────────────────────────────────────────────────────────────────
+  (function init() {
+    const loaded = loadState();
+    if (!loaded || !state.zones.length) {
+      seedDefaults();
+      saveState();
+    }
+    el.fmtToggle.querySelectorAll('button').forEach(b => {
+      b.classList.toggle('active',
+        (state.format24 && b.dataset.fmt === '24') ||
+        (!state.format24 && b.dataset.fmt === '12'));
+    });
+    el.bizToggle.querySelectorAll('button').forEach(b => {
+      const isExt = state.bizStart === 8;
+      b.classList.toggle('active',
+        (isExt && b.dataset.biz === 'extended') ||
+        (!isExt && b.dataset.biz === 'standard'));
+    });
+    syncSliderToNow();
+    render();
+    setInterval(render, 1000);
+  })();
+</script>
+
+</body>
+</html>
